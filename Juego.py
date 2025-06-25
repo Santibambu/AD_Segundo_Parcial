@@ -132,16 +132,16 @@ while correr:
             if evento.type == pygame.QUIT:
                 correr = False
             if evento.type == pygame.MOUSEBUTTONDOWN:
-                botones_opciones = {
-                    BOTÓN_OPCIÓN1: "a",
-                    BOTÓN_OPCIÓN2: "b",
-                    BOTÓN_OPCIÓN3: "c"
-                }
+                botones_opciones = [
+                (BOTÓN_OPCIÓN1, "a"),
+                (BOTÓN_OPCIÓN2, "b"),
+                (BOTÓN_OPCIÓN3, "c")
+                ]
 
-                for botón, opción in botones_opciones.items():
+                for botón, letra in botones_opciones:
                     if botón.collidepoint(evento.pos):
                         reproducir_sonido("click")
-                        respuesta = validar_respuesta(opción, pregunta_actual)
+                        respuesta = validar_respuesta(letra, pregunta_actual)
                         estado_juego = "validación"
                         temporizador_activado = False
                         pygame.time.set_timer(evento_tiempo, 0)

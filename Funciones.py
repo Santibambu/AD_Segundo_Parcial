@@ -219,7 +219,7 @@ def leer_csv(nombre_archivo: str) -> tuple:
             datos.append((elemento1, elemento2))
     return datos
 
-def obtener_clave_ordenamiento(tupla: tuple) -> int:
+def convertir_puntuación_a_entero(tupla: tuple) -> int:
     """
     Devuelve el valor numérico de la puntuación para ordenar.
 
@@ -242,5 +242,5 @@ def ordenar_csv(nombre_archivo:str) -> list:
         list: Lista ordenada de tuplas con los datos del archivo.
     """
     elementos = leer_csv(nombre_archivo)
-    elementos.sort(key=obtener_clave_ordenamiento, reverse=True)
+    elementos.sort(key=convertir_puntuación_a_entero, reverse=True)
     return elementos
