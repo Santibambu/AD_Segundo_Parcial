@@ -57,20 +57,20 @@ def reproducir_sonido_aleatorio():
         case 3: efecto = mixer.Sound("./Sonidos/Tecla3.mp3"); efecto.set_volume(0.4); efecto.play()
         case 4: efecto = mixer.Sound("./Sonidos/Tecla4.mp3"); efecto.set_volume(0.4); efecto.play()
 
-def crear_círculo(coordenadas: tuple, botón: tuple):
+def verificar_click_círculo(coordenadas: tuple, círculo: tuple):
     """
     Verifica si un punto está dentro de un círculo.
 
     Parámetros:
         coordenadas (tuple): Coordenadas (x, y) del punto a verificar.
-        botón (tuple): Tupla (centro_x, centro_y, radio) del círculo.
+        círculo (tuple): Tupla (centro_x, centro_y, radio) del círculo.
 
     Devuelve:
         bool: True si el punto está dentro del círculo, False en caso contrario.
     """
     x, y = coordenadas
-    centro_x, centro_y, radio = botón
-    return (x - centro_x) ** 2 + (y - centro_y) ** 2 <= radio ** 2
+    centro_x, centro_y, radio = círculo
+    return (x - centro_x) ** 2 + (y - centro_y) ** 2 <= radio ** 2 # Teorema de pitágoras ((x−h)^2 + (y−k)^2 ≤ r^2))
 
 def generar_pregunta_aleatoria(preguntas: list) -> dict | bool:
     """
