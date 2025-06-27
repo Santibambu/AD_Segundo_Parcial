@@ -57,7 +57,7 @@ def reproducir_sonido_aleatorio():
         case 3: efecto = mixer.Sound("./Sonidos/Tecla3.mp3"); efecto.set_volume(0.4); efecto.play()
         case 4: efecto = mixer.Sound("./Sonidos/Tecla4.mp3"); efecto.set_volume(0.4); efecto.play()
 
-def verificar_click_círculo(coordenadas: tuple, círculo: tuple):
+def verificar_click_círculo(coordenadas: tuple, círculo: tuple) -> bool:
     """
     Verifica si un punto está dentro de un círculo.
 
@@ -108,19 +108,19 @@ def blitear_texto_multilínea(pantalla, texto: str, fuente: pygame.font.Font, co
     
     for palabra in palabras:
         línea_aux = línea_actual + palabra + " "
-        if fuente.size(línea_aux)[0] <= espacio.width:
+        if fuente.size(línea_aux)[0] <= espacio.width: # Si la línea no sobrepasa el espacio...
             línea_actual = línea_aux
         else:
             líneas.append(línea_actual)
-            línea_actual = palabra + " "
-    líneas.append(línea_actual)
+            línea_actual = palabra + " " # Si la línea sobrepasa el espacio, se guarda lo que se tiene y se empieza a construir una nueva línea
+    líneas.append(línea_actual) # Se crea la lista con todas las palabras (el texto)
 
-    altura_total = len(líneas) * (fuente.get_height() + 5) - 5
-    eje_vertical_inicial = espacio.centery - altura_total // 2 + 10
+    altura_total = len(líneas) * (fuente.get_height() + 5) - 5 # Multiplica la cantidad de líneas por la cantidad de pixeles que se usan para esa fuente y una separación de 5 pixeles extra entre cada línea, luego resta 5 pixeles de la última línea, que no debería tener separación
+    eje_vertical_inicial = espacio.centery - altura_total // 2 + 10 # Resta el centro vertical del espacio donde se va a dibujar el texto con la mitad de la altura total que ocupa dicho texto, y luego suma un márgen de espaciado de 10 pixeles
 
     for i, línea in enumerate(líneas):
         render_pantalla = fuente.render(línea, True, color)
-        espacio_texto = render_pantalla.get_rect(center=(espacio.centerx, eje_vertical_inicial + i * (fuente.get_height() + 5)))
+        espacio_texto = render_pantalla.get_rect(center=(espacio.centerx, eje_vertical_inicial + i * (fuente.get_height() + 5))) # Crea un espacio para cada línea individual, ubicando cada línea centrada horizontal y verticalmente, una debajo de la otra, con separación de 5 pixeles
         pantalla.blit(render_pantalla, espacio_texto)
 
 def validar_respuesta(respuesta: str, pregunta: dict) -> bool:
@@ -193,12 +193,12 @@ def crear_tablero_puntuación(nombre: str, posición: int):
     """
     try:
         with open("Puntuación.csv", "r") as archivo:
-            líneas = archivo.readlines()
+            líneas = archivo.readlines() # Intenta leer el archivo
     except FileNotFoundError:
-        líneas = []
+        líneas = [] # Si no existe, líneas pasa a ser una lista vacía
     with open("Puntuación.csv", "a") as archivo:
         if len(líneas) == 0:
-            archivo.write("jugador,puntuacion\n")
+            archivo.write("jugador,puntuacion\n") # Si está vacío, escribe la cabecera
         archivo.write(f"{nombre}, {posición + 1}\n")
 
 def leer_csv(nombre_archivo: str) -> tuple:
@@ -213,15 +213,15 @@ def leer_csv(nombre_archivo: str) -> tuple:
     """
     datos = []
     with open(nombre_archivo, "r") as archivo:
-        líneas = archivo.readlines()[1:]
+        líneas = archivo.readlines()[1:] # Descarta la cabecera del archivo
         for línea in líneas:
-            elemento1, elemento2 = línea.split(",")
+            elemento1, elemento2 = línea.split(",") # Separa el nombre del jugador de su posición
             datos.append((elemento1, elemento2))
     return datos
 
 def convertir_puntuación_a_entero(tupla: tuple) -> int:
     """
-    Devuelve el valor numérico de la puntuación para ordenar.
+    Convierte el string de la puntuación a un número entero para su uso como clave de ordenamiento.
 
     Parámetros:
         tupla (tuple): Tupla con el nombre y la puntuación.
@@ -242,5 +242,5 @@ def ordenar_csv(nombre_archivo:str) -> list:
         list: Lista ordenada de tuplas con los datos del archivo.
     """
     elementos = leer_csv(nombre_archivo)
-    elementos.sort(key=convertir_puntuación_a_entero, reverse=True)
+    elementos.sort(key=convertir_puntuación_a_entero, reverse=True) # Se pasa la función convertir_puntuación_a_entero como clave d eordenamiento, para que sort haga uso de ella por cada elemento de la tupla
     return elementos
