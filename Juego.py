@@ -68,8 +68,9 @@ while correr:
             if evento.type == pygame.KEYDOWN:
                 reproducir_sonido_aleatorio()
                 if evento.key == pygame.K_RETURN:
-                    nombre_jugador = nombre_mostrado
-                    estado_juego = "color"
+                    if not nombre_mostrado.strip() == "":
+                        nombre_jugador = nombre_mostrado
+                        estado_juego = "color"
                 elif evento.key == pygame.K_BACKSPACE:
                     nombre_jugador = nombre_jugador[:-1]
                 else:
