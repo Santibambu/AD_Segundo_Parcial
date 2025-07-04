@@ -59,7 +59,7 @@ while correr:
         nombre_mostrado = nombre_jugador[:caracteres_máximos]
 
         texto_ingresado = fuente.render(nombre_mostrado, True, BLANCO)
-        texto_rectángulo = texto_ingresado.get_rect(center=(pantalla.get_width() // 2, 490))
+        texto_rectángulo = texto_ingresado.get_rect(center=(pantalla.get_width() // 2, 490)) # Crea un rectángulo para el texto centrado horizontalmente en la pantalla
         pantalla.blit(texto_ingresado, texto_rectángulo)
 
         for evento in pygame.event.get():
