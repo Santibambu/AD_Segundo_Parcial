@@ -122,10 +122,10 @@ while correr:
         texto_temporizador = fuente.render(str(tiempo_restante), True, BLANCO)
         círculo_temporizador = texto_temporizador.get_rect(center=NÚMERO_TEMPORIZADOR.center)
 
-        blitear_texto_multilínea(pantalla, pregunta_actual["pregunta"], fuente, BLANCO, TEXTO_PREGUNTA)
-        blitear_texto_multilínea(pantalla, pregunta_actual["respuesta_a"], fuente, BLANCO, BOTÓN_OPCIÓN1)
-        blitear_texto_multilínea(pantalla, pregunta_actual["respuesta_b"], fuente, BLANCO, BOTÓN_OPCIÓN2)
-        blitear_texto_multilínea(pantalla, pregunta_actual["respuesta_c"], fuente, BLANCO, BOTÓN_OPCIÓN3)
+        blitear_texto_centrado(pantalla, pregunta_actual["pregunta"], fuente, BLANCO, TEXTO_PREGUNTA)
+        blitear_texto_centrado(pantalla, pregunta_actual["respuesta_a"], fuente, BLANCO, BOTÓN_OPCIÓN1)
+        blitear_texto_centrado(pantalla, pregunta_actual["respuesta_b"], fuente, BLANCO, BOTÓN_OPCIÓN2)
+        blitear_texto_centrado(pantalla, pregunta_actual["respuesta_c"], fuente, BLANCO, BOTÓN_OPCIÓN3)
         pantalla.blit(texto_temporizador, círculo_temporizador)
 
         for evento in pygame.event.get():
@@ -177,27 +177,27 @@ while correr:
             
         if not sin_tiempo:
             if avanzar:
-                blitear_texto_multilínea(pantalla, "Respondiste correctamente. Avanzás una casilla.", fuente, BLANCO, RESPUESTA_VALIDADA)
+                blitear_texto_centrado(pantalla, "Respondiste correctamente. Avanzás una casilla.", fuente, BLANCO, RESPUESTA_VALIDADA)
                 if extra == 1:
-                    blitear_texto_multilínea(pantalla, "¡Encontraste una escalera! La subís y avanzás 1 casilla hacia arriba.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
+                    blitear_texto_centrado(pantalla, "¡Encontraste una escalera! La subís y avanzás 1 casilla hacia arriba.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
                 elif extra == 2:
-                    blitear_texto_multilínea(pantalla, "¡Encontraste una escalera! La subís y avanzás 2 casillas hacia arriba.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
+                    blitear_texto_centrado(pantalla, "¡Encontraste una escalera! La subís y avanzás 2 casillas hacia arriba.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
             else:
-                blitear_texto_multilínea(pantalla, "Respondiste incorrectamente. Retrocedés una casilla.", fuente, BLANCO, RESPUESTA_VALIDADA)
+                blitear_texto_centrado(pantalla, "Respondiste incorrectamente. Retrocedés una casilla.", fuente, BLANCO, RESPUESTA_VALIDADA)
                 if extra == 1:
-                    blitear_texto_multilínea(pantalla, "¡Pisaste una serpiente! Te arrastró 1 casilla hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
+                    blitear_texto_centrado(pantalla, "¡Pisaste una serpiente! Te arrastró 1 casilla hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
                 elif extra == 2:
-                    blitear_texto_multilínea(pantalla, "¡Pisaste una serpiente! Te arrastró 2 casillas hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
+                    blitear_texto_centrado(pantalla, "¡Pisaste una serpiente! Te arrastró 2 casillas hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
                 elif extra == 3:
-                    blitear_texto_multilínea(pantalla, "¡Pisaste una serpiente! Te arrastró 3 casillas hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
+                    blitear_texto_centrado(pantalla, "¡Pisaste una serpiente! Te arrastró 3 casillas hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
         else:
-            blitear_texto_multilínea(pantalla, "Se te acabó el tiempo para responder. Retrocedés una casilla.", fuente, BLANCO, RESPUESTA_VALIDADA)
+            blitear_texto_centrado(pantalla, "Se te acabó el tiempo para responder. Retrocedés una casilla.", fuente, BLANCO, RESPUESTA_VALIDADA)
             if extra == 1:
-                blitear_texto_multilínea(pantalla, "¡Pisaste una serpiente! Te arrastró 1 casilla hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
+                blitear_texto_centrado(pantalla, "¡Pisaste una serpiente! Te arrastró 1 casilla hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
             elif extra == 2:
-                blitear_texto_multilínea(pantalla, "¡Pisaste una serpiente! Te arrastró 2 casillas hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
+                blitear_texto_centrado(pantalla, "¡Pisaste una serpiente! Te arrastró 2 casillas hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
             elif extra == 3:
-                blitear_texto_multilínea(pantalla, "¡Pisaste una serpiente! Te arrastró 3 casillas hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
+                blitear_texto_centrado(pantalla, "¡Pisaste una serpiente! Te arrastró 3 casillas hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
 
         for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
@@ -236,8 +236,8 @@ while correr:
                 correr = False
             elif evento.type == pygame.MOUSEBUTTONDOWN:
                 reproducir_sonido("click")
-                estado_juego = "fin del juego"
                 resolución = resoluciones[estado_juego]
+                estado_juego = "fin del juego"
     elif estado_juego == "fin del juego":
         match resolución:
             case "victoria": pantalla.blit(resolución_victoria, (0, 0))
@@ -272,8 +272,8 @@ while correr:
         datos = ordenar_csv("Puntuación.csv")
         max_filas = 5
         for (nombre_puntuación, casillas), rect_nombre, rect_casilla in zip(datos[:max_filas], COLUMNA_NOMBRE, COLUMNA_CASILLAS):
-            blitear_texto_multilínea(pantalla, nombre_puntuación, fuente, BLANCO, rect_nombre)
-            blitear_texto_multilínea(pantalla, casillas, fuente, BLANCO, rect_casilla)
+            blitear_texto_centrado(pantalla, nombre_puntuación, fuente, BLANCO, rect_nombre)
+            blitear_texto_centrado(pantalla, casillas, fuente, BLANCO, rect_casilla)
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:

@@ -91,7 +91,7 @@ def generar_pregunta_aleatoria(preguntas: list) -> dict | bool:
         resultado = False
     return resultado
 
-def blitear_texto_multilínea(pantalla, texto: str, fuente: pygame.font.Font, color: tuple, espacio: pygame.Rect):
+def blitear_texto_centrado(pantalla, texto: str, fuente: pygame.font.Font, color: tuple, espacio: pygame.Rect):
     """
     Dibuja texto multilínea centrado en un área específica de la pantalla.
 
