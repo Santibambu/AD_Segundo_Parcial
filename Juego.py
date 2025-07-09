@@ -1,6 +1,9 @@
 import pygame
 import pygame.mixer as mixer
-from Funciones import *
+from Funciones.Funciones_Auditivas import *
+from Funciones.Funciones_Jugando import *
+from Funciones.Funciones_Validación import *
+from Funciones.Funciones_Archivos import *
 from Imágenes import *
 from Coordenadas import *
 from Colores import *
@@ -84,17 +87,17 @@ while correr:
                 correr = False
             if evento.type == pygame.MOUSEBUTTONDOWN:
                 botones_colores = {
-                BOTÓN_NEGRO: NEGRO,
-                BOTÓN_GRIS: GRIS,
-                BOTÓN_BLANCO: BLANCO,
-                BOTÓN_ROJO: ROJO,
-                BOTÓN_VERDE: VERDE,
-                BOTÓN_AZUL: AZUL,
-                BOTÓN_NARANJA: NARANJA,
-                BOTÓN_AMARILLO: AMARILLO,
-                BOTÓN_CELESTE: CELESTE,
-                BOTÓN_VIOLETA: VIOLETA,
-                BOTÓN_ROSA: ROSA
+                    BOTÓN_NEGRO: NEGRO,
+                    BOTÓN_GRIS: GRIS,
+                    BOTÓN_BLANCO: BLANCO,
+                    BOTÓN_ROJO: ROJO,
+                    BOTÓN_VERDE: VERDE,
+                    BOTÓN_AZUL: AZUL,
+                    BOTÓN_NARANJA: NARANJA,
+                    BOTÓN_AMARILLO: AMARILLO,
+                    BOTÓN_CELESTE: CELESTE,
+                    BOTÓN_VIOLETA: VIOLETA,
+                    BOTÓN_ROSA: ROSA
                 }
 
                 for botón, color in botones_colores.items():
@@ -123,23 +126,16 @@ while correr:
         texto_temporizador = fuente.render(str(tiempo_restante), True, BLANCO)
         círculo_temporizador = texto_temporizador.get_rect(center=NÚMERO_TEMPORIZADOR.center)
 
-        blitear_texto_centrado(pantalla, pregunta_actual["pregunta"], fuente, BLANCO, TEXTO_PREGUNTA)
-        blitear_texto_centrado(pantalla, pregunta_actual["respuesta_a"], fuente, BLANCO, BOTÓN_OPCIÓN1)
-        blitear_texto_centrado(pantalla, pregunta_actual["respuesta_b"], fuente, BLANCO, BOTÓN_OPCIÓN2)
-        blitear_texto_centrado(pantalla, pregunta_actual["respuesta_c"], fuente, BLANCO, BOTÓN_OPCIÓN3)
+        for clave, posición in zip(pregunta_actual.keys(), COORDENADAS_PREGUNTA.values()):
+            blitear_texto_centrado(pantalla, pregunta_actual[clave], fuente, BLANCO, posición)
         pantalla.blit(texto_temporizador, círculo_temporizador)
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 correr = False
             if evento.type == pygame.MOUSEBUTTONDOWN:
-                botones_opciones = [
-                (BOTÓN_OPCIÓN1, "a"),
-                (BOTÓN_OPCIÓN2, "b"),
-                (BOTÓN_OPCIÓN3, "c")
-                ]
-
-                for botón, letra in botones_opciones:
+                letras = ["a", "b", "c"]
+                for botón, letra in zip(list(COORDENADAS_PREGUNTA.values())[1:], letras):
                     if botón.collidepoint(evento.pos):
                         reproducir_sonido("click")
                         respuesta = validar_respuesta(letra, pregunta_actual)
@@ -164,9 +160,9 @@ while correr:
         if not movimiento_procesado:
             avanzar, extra, posición_actual = realizar_movimiento(respuesta, TABLERO, posición_actual)
 
-            if extra in [1, 2] and avanzar:
+            if (extra == 1 or extra == 2) and avanzar:
                 pygame.event.post(pygame.event.Event(sonido_escalera))
-            elif extra in [1, 2, 3] and not avanzar:
+            elif (extra == 1 or extra == 2 or extra == 3) and not avanzar:
                 pygame.event.post(pygame.event.Event(sonido_serpiente))
 
             nuevo_estado = verificar_posición(posición_actual)
@@ -179,26 +175,16 @@ while correr:
         if not sin_tiempo:
             if avanzar:
                 blitear_texto_centrado(pantalla, "Respondiste correctamente. Avanzás una casilla.", fuente, BLANCO, RESPUESTA_VALIDADA)
-                if extra == 1:
-                    blitear_texto_centrado(pantalla, "¡Encontraste una escalera! La subís y avanzás 1 casilla hacia arriba.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
-                elif extra == 2:
-                    blitear_texto_centrado(pantalla, "¡Encontraste una escalera! La subís y avanzás 2 casillas hacia arriba.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
+                if extra != 0:
+                    blitear_texto_centrado(pantalla, f"¡Encontraste una escalera! La subís y avanzás {extra} casilla/s hacia arriba.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
             else:
                 blitear_texto_centrado(pantalla, "Respondiste incorrectamente. Retrocedés una casilla.", fuente, BLANCO, RESPUESTA_VALIDADA)
-                if extra == 1:
-                    blitear_texto_centrado(pantalla, "¡Pisaste una serpiente! Te arrastró 1 casilla hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
-                elif extra == 2:
-                    blitear_texto_centrado(pantalla, "¡Pisaste una serpiente! Te arrastró 2 casillas hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
-                elif extra == 3:
-                    blitear_texto_centrado(pantalla, "¡Pisaste una serpiente! Te arrastró 3 casillas hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
+                if extra != 0:
+                    blitear_texto_centrado(pantalla, f"¡Pisaste una serpiente! Te arrastró {extra} casilla/s hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
         else:
             blitear_texto_centrado(pantalla, "Se te acabó el tiempo para responder. Retrocedés una casilla.", fuente, BLANCO, RESPUESTA_VALIDADA)
-            if extra == 1:
-                blitear_texto_centrado(pantalla, "¡Pisaste una serpiente! Te arrastró 1 casilla hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
-            elif extra == 2:
-                blitear_texto_centrado(pantalla, "¡Pisaste una serpiente! Te arrastró 2 casillas hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
-            elif extra == 3:
-                blitear_texto_centrado(pantalla, "¡Pisaste una serpiente! Te arrastró 3 casillas hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
+            if extra != 0:
+                blitear_texto_centrado(pantalla, f"¡Pisaste una serpiente! Te arrastró {extra} casilla/s hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
 
         for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
@@ -216,7 +202,7 @@ while correr:
                     reproducir_sonido("escalera")
                 if evento.type == sonido_serpiente:
                     reproducir_sonido("serpiente")
-    elif estado_juego in ("victoria", "derrota", "sin preguntas"):
+    elif estado_juego == "victoria" or estado_juego == "derrota" or estado_juego == "sin preguntas":
         fondos = {
             "victoria": victoria,
             "derrota": derrota,
@@ -240,10 +226,12 @@ while correr:
                 resolución = resoluciones[estado_juego]
                 estado_juego = "fin del juego"
     elif estado_juego == "fin del juego":
-        match resolución:
-            case "victoria": pantalla.blit(resolución_victoria, (0, 0))
-            case "derrota": pantalla.blit(resolución_derrota, (0, 0))
-            case "atrapado": pantalla.blit(resolución_atrapado, (0, 0)); reproducir_música(resolución)
+        fondos = {
+            "victoria": resolución_victoria,
+            "derrota": resolución_derrota,
+            "atrapado": resolución_atrapado
+        }
+        pantalla.blit(fondos[resolución], (0, 0))
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
@@ -254,7 +242,7 @@ while correr:
                     reproducir_sonido("click")
                 if BOTÓN_CERRAR.collidepoint(evento.pos):
                     correr = False
-    elif estado_juego in ("puntuación", "ver puntuación"):
+    elif estado_juego == "puntuación" or estado_juego == "ver puntuación":
         fondos_puntuación = {
             "victoria": puntuación_victoria,
             "derrota": puntuación_derrota,
@@ -288,3 +276,8 @@ while correr:
                     correr = False
     pygame.display.flip()
 pygame.quit()
+
+"""
+CAMBIOS A EFECTUAR
+4) Modularizar cada bloque de código de cada estado de juego en una función dedicada. En el archivo principal solo debe quedar el bucle correr y los ifs de los estados
+"""
