@@ -1,5 +1,6 @@
 import pygame
 import pygame.mixer as mixer
+from Funciones.Funciones_Estados import *
 from Funciones.Funciones_Auditivas import *
 from Funciones.Funciones_Jugando import *
 from Funciones.Funciones_Validación import *
@@ -37,52 +38,21 @@ sonido_serpiente = pygame.USEREVENT + 3
 sonido_procesado = False
 
 while correr:
+    eventos = pygame.event.get()
+    correr = not detectar_evento_salir(eventos)
+
     if estado_juego == "inicio":
-        pantalla.blit(título, (0, 0))
-        reproducir_música(estado_juego)
-
-        for evento in pygame.event.get():
-            if evento.type == pygame.QUIT:
-                correr = False
-            if evento.type == pygame.MOUSEBUTTONDOWN:
-                if BOTÓN_JUGAR.collidepoint(evento.pos):
-                    reproducir_sonido("click")
-                    estado_juego = "nombre"
-                    detener_música()
-                elif BOTÓN_SALIR.collidepoint(evento.pos):
-                    correr = False
-                elif BOTÓN_VER_PUNTUACIONES.collidepoint(evento.pos):
-                    reproducir_sonido("click")
-                    estado_juego = "ver puntuación"
+        estado_juego = manejar_estado_inicio(eventos, pantalla, estado_juego)
+        if estado_juego == "salir":
+            correr = False
     elif estado_juego == "nombre":
-        pantalla.blit(nombre, (0, 0))
-        reproducir_música(estado_juego)
-
-        caracteres_máximos = 29
-        nombre_mostrado = nombre_jugador[:caracteres_máximos]
-
-        texto_ingresado = fuente.render(nombre_mostrado, True, BLANCO)
-        texto_rectángulo = texto_ingresado.get_rect(center=(pantalla.get_width() // 2, 490)) # Crea un rectángulo para el texto centrado horizontalmente en la pantalla
-        pantalla.blit(texto_ingresado, texto_rectángulo)
-
-        for evento in pygame.event.get():
-            if evento.type == pygame.QUIT:
-                correr = False
-            if evento.type == pygame.KEYDOWN:
-                reproducir_sonido_aleatorio()
-                if evento.key == pygame.K_RETURN:
-                    if not nombre_mostrado.strip() == "":
-                        nombre_jugador = nombre_mostrado
-                        estado_juego = "color"
-                elif evento.key == pygame.K_BACKSPACE:
-                    nombre_jugador = nombre_jugador[:-1]
-                else:
-                    if len(nombre_jugador) < caracteres_máximos:
-                        nombre_jugador += evento.unicode
+        estado_juego, nombre_jugador = manejar_estado_nombre(eventos, pantalla, estado_juego, fuente, nombre_jugador)
+        if estado_juego == "salir":
+            correr = False
     elif estado_juego == "color":
         pantalla.blit(colores, (0, 0))
 
-        for evento in pygame.event.get():
+        for evento in eventos:
             if evento.type == pygame.QUIT:
                 correr = False
             if evento.type == pygame.MOUSEBUTTONDOWN:
@@ -130,7 +100,7 @@ while correr:
             blitear_texto_centrado(pantalla, pregunta_actual[clave], fuente, BLANCO, posición)
         pantalla.blit(texto_temporizador, círculo_temporizador)
 
-        for evento in pygame.event.get():
+        for evento in eventos:
             if evento.type == pygame.QUIT:
                 correr = False
             if evento.type == pygame.MOUSEBUTTONDOWN:
@@ -186,7 +156,7 @@ while correr:
             if extra != 0:
                 blitear_texto_centrado(pantalla, f"¡Pisaste una serpiente! Te arrastró {extra} casilla/s hacia abajo.", fuente, BLANCO, MOVIMIENTOS_EXTRA)
 
-        for evento in pygame.event.get():
+        for evento in eventos:
                 if evento.type == pygame.QUIT:
                     correr = False
                 if evento.type == pygame.MOUSEBUTTONDOWN:
@@ -218,7 +188,7 @@ while correr:
         pantalla.blit(fondos[estado_juego], (0, 0))
         reproducir_música(estado_juego)
 
-        for evento in pygame.event.get():
+        for evento in eventos:
             if evento.type == pygame.QUIT:
                 correr = False
             elif evento.type == pygame.MOUSEBUTTONDOWN:
@@ -231,9 +201,11 @@ while correr:
             "derrota": resolución_derrota,
             "atrapado": resolución_atrapado
         }
+        if resolución == "atrapado":
+            reproducir_música("atrapado")
         pantalla.blit(fondos[resolución], (0, 0))
 
-        for evento in pygame.event.get():
+        for evento in eventos:
             if evento.type == pygame.QUIT:
                 correr = False
             if evento.type == pygame.MOUSEBUTTONDOWN:
@@ -264,7 +236,7 @@ while correr:
             blitear_texto_centrado(pantalla, nombre_puntuación, fuente, BLANCO, rect_nombre)
             blitear_texto_centrado(pantalla, casillas, fuente, BLANCO, rect_casilla)
 
-        for evento in pygame.event.get():
+        for evento in eventos:
             if evento.type == pygame.QUIT:
                 correr = False
             elif evento.type == pygame.MOUSEBUTTONDOWN:
