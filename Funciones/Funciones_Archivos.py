@@ -16,7 +16,7 @@ def crear_tablero_puntuación(nombre: str, posición: int):
             archivo.write("jugador,puntuacion\n") # Si está vacío, escribe la cabecera
         archivo.write(f"{nombre}, {posición + 1}\n")
 
-def leer_csv(nombre_archivo: str) -> tuple:
+def leer_csv(nombre_archivo: str) -> list:
     """
     Lee los datos de un archivo CSV y los devuelve como una lista de tuplas.
 
@@ -27,14 +27,17 @@ def leer_csv(nombre_archivo: str) -> tuple:
         list: Lista de tuplas con los datos del archivo.
     """
     datos = []
-    with open(nombre_archivo, "r") as archivo:
-        líneas = archivo.readlines()[1:] # Descarta la cabecera del archivo
-        for línea in líneas:
-            elemento1, elemento2 = línea.split(",") # Separa el nombre del jugador de su posición
-            datos.append((elemento1, elemento2))
+    try:
+        with open(nombre_archivo, "r") as archivo:
+            líneas = archivo.readlines()[1:] # Descarta la cabecera del archivo
+            for línea in líneas:
+                elemento1, elemento2 = línea.split(",") # Separa el nombre del jugador de su posición
+                datos.append((elemento1, elemento2))
+    except FileNotFoundError:
+        pass
     return datos
 
-def convertir_puntuación_a_entero(tupla: tuple) -> int:
+def convertir_puntuación_a_entero(tupla: tuple[str, str]) -> int:
     """
     Convierte el string de la puntuación a un número entero para su uso como clave de ordenamiento.
 
@@ -46,7 +49,7 @@ def convertir_puntuación_a_entero(tupla: tuple) -> int:
     """
     return int(tupla[1])
 
-def ordenar_csv(nombre_archivo:str) -> list:
+def ordenar_csv(nombre_archivo: str) -> list:
     """
     Ordena los datos de un archivo CSV por puntuación de mayor a menor.
 

@@ -1,47 +1,86 @@
 import pygame
 import random
 from Preguntas import *
-from Coordenadas import *
-from Funciones.Funciones_Auditivas import *
 from Funciones.Funciones_Validación import *
 
-def generar_pregunta_aleatoria(preguntas: list) -> dict | bool:
-        """
-        Selecciona y elimina una pregunta aleatoria de la lista.
+def generar_pregunta_aleatoria(preguntas: list) -> dict | None:
+    """
+    Selecciona y elimina una pregunta aleatoria de la lista.
 
-        Parámetros:
-            preguntas (list): Lista de preguntas disponibles.
+    Parámetros:
+        preguntas (list): Lista de preguntas disponibles.
 
-        Devuelve:
-            dict: Pregunta seleccionada.
-            bool: False si no hay preguntas disponibles.
-        """
-        if preguntas:
-            pregunta_aleatoria = preguntas[random.randint(0, len(preguntas) - 1)]
-            preguntas.remove(pregunta_aleatoria)
-            resultado = pregunta_aleatoria
-        else:
-            resultado = False
-        return resultado
+    Devuelve:
+        dict: Pregunta seleccionada.
+        None: Si no hay preguntas disponibles.
+    """
+    if preguntas:
+        pregunta_aleatoria = preguntas[random.randint(0, len(preguntas) - 1)]
+        preguntas.remove(pregunta_aleatoria)
+        pregunta = pregunta_aleatoria
+    else:
+        pregunta = None
+    return pregunta
 
-def manejar_pregunta(estado_juego: str, variables_estado_jugando: dict) -> str:
-    if variables_estado_jugando["pregunta_actual"] is None:
-        variables_estado_jugando["pregunta_actual"] = generar_pregunta_aleatoria(preguntas)
-        if not variables_estado_jugando["pregunta_actual"]:
+def manejar_pregunta(estado_juego: str, variables: dict, evento_temporizador) -> tuple[str, dict]:
+    """
+    Maneja la lógica para obtener y preparar la pregunta actual del juego.
+
+    Parámetros:
+        estado_juego (str): Estado actual del juego.
+        variables (dict): Diccionario con el estado interno del juego.
+
+    Devuelve:
+        tuple[str, dict]: Nuevo estado del juego y el diccionario actualizado de variables del estado.
+    """
+    if variables["pregunta_actual"] is None:
+        variables["pregunta_actual"] = generar_pregunta_aleatoria(preguntas)
+        if not variables["pregunta_actual"]:
             estado_juego = "sin preguntas"
             detener_música()
         else:
-            variables_estado_jugando["tiempo_restante"] = 15
-            pygame.time.set_timer(pygame.USEREVENT + 1, 1000)
-            variables_estado_jugando["temporizador_activado"] = True
-    return (estado_juego, variables_estado_jugando)
+            variables["tiempo_restante"] = 15
+            pygame.time.set_timer(evento_temporizador, 1000)
+            variables["temporizador_activado"] = True
+    return (estado_juego, variables)
 
-def manejar_click_respuesta(evento: pygame.event.Event, variables_estado_jugando: dict) -> tuple[str, bool]:
+def manejar_click_respuesta(evento: pygame.event.Event, variables: dict) -> tuple[str, bool]:
+    """
+    Procesa el clic del usuario sobre una respuesta y actualiza el estado.
+
+    Parámetros:
+        evento (pygame.event.Event): Evento de clic del usuario.
+        variables (dict): Diccionario con el estado interno del juego.
+
+    Devuelve:
+        tuple[str, bool]: Nuevo estado del juego y si se seleccionó una respuesta.
+    """
     respuesta_seleccionada = False
     for botón, letra in zip(list(COORDENADAS_PREGUNTA.values())[1:], ["a", "b", "c"]):
         if botón.collidepoint(evento.pos):
             reproducir_sonido("click")
-            variables_estado_jugando["respuesta"] = validar_respuesta(letra, variables_estado_jugando["pregunta_actual"])
-            variables_estado_jugando["temporizador_activado"] = False
+            variables["respuesta"] = letra
+            variables["temporizador_activado"] = False
             respuesta_seleccionada = True
     return ("validación", respuesta_seleccionada)
+
+def actualizar_temporizador(variables: dict) -> tuple[str, dict]:
+    """
+    Actualiza el temporizador, reproduce sonidos y determina si se cambia de estado.
+
+    Parámetros:
+        variables (dict): Diccionario con el estado interno del juego.
+
+    Devuelve:
+        tuple[str, dict]: Nuevo estado del juego y el diccionario actualizado de variables del estado.
+    """
+    estado_juego = "jugando"
+    variables["tiempo_restante"] -= 1
+    if variables["tiempo_restante"] <= 0:
+        variables["respuesta"] = False
+        variables["temporizador_activado"] = False
+        variables["sin_tiempo"] = True
+        estado_juego = "validación"
+    elif variables["tiempo_restante"] == 3:
+        reproducir_sonido("temporizador")
+    return (estado_juego, variables)
