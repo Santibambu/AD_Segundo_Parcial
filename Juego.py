@@ -1,8 +1,8 @@
 import pygame
 import pygame.mixer as mixer
-from Funciones.Funciones_Estados import *
 from Funciones.Funciones_Auditivas import *
-from Funciones.Funciones_Jugando import *
+from Funciones.Funciones_Generales import *
+from Funciones.Funciones_Estados import *
 from Funciones.Funciones_Validación import *
 from Funciones.Funciones_Archivos import *
 from Imágenes import *
@@ -19,110 +19,37 @@ pygame.display.set_icon(ícono)
 correr = True
 estado_juego = "inicio"
 fuente = pygame.font.Font("Kavoon-Regular.ttf", 18)
+
 nombre_jugador = ""
-color_jugador = None
+variables_estado_jugando = {
+    "pregunta_actual": None,
+    "respuesta": None,
+    "tiempo_restante": 15,
+    "temporizador_activado": False,
+}
+sin_tiempo = False
 TABLERO = [0, 1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1, 0, 0, 2, 1, 1, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 0, 1, 0, 0]
 posición_actual = 15
-pregunta_actual = None
-respuesta = None
 movimiento_procesado = False
 resolución = ""
 puntuación_guardada = False
 
-tiempo_restante = 15
-temporizador_activado = False
-evento_tiempo = pygame.USEREVENT + 1
-sin_tiempo = False
 sonido_escalera = pygame.USEREVENT + 2
 sonido_serpiente = pygame.USEREVENT + 3
 sonido_procesado = False
 
 while correr:
     eventos = pygame.event.get()
-    correr = not detectar_evento_salir(eventos)
+    correr = not detectar_abandono(eventos, estado_juego)
 
     if estado_juego == "inicio":
         estado_juego = manejar_estado_inicio(eventos, pantalla, estado_juego)
-        if estado_juego == "salir":
-            correr = False
     elif estado_juego == "nombre":
-        estado_juego, nombre_jugador = manejar_estado_nombre(eventos, pantalla, estado_juego, fuente, nombre_jugador)
-        if estado_juego == "salir":
-            correr = False
+        estado_juego, nombre_jugador = manejar_estado_nombre(eventos, pantalla, fuente, estado_juego, nombre_jugador)
     elif estado_juego == "color":
-        pantalla.blit(colores, (0, 0))
-
-        for evento in eventos:
-            if evento.type == pygame.QUIT:
-                correr = False
-            if evento.type == pygame.MOUSEBUTTONDOWN:
-                botones_colores = {
-                    BOTÓN_NEGRO: NEGRO,
-                    BOTÓN_GRIS: GRIS,
-                    BOTÓN_BLANCO: BLANCO,
-                    BOTÓN_ROJO: ROJO,
-                    BOTÓN_VERDE: VERDE,
-                    BOTÓN_AZUL: AZUL,
-                    BOTÓN_NARANJA: NARANJA,
-                    BOTÓN_AMARILLO: AMARILLO,
-                    BOTÓN_CELESTE: CELESTE,
-                    BOTÓN_VIOLETA: VIOLETA,
-                    BOTÓN_ROSA: ROSA
-                }
-
-                for botón, color in botones_colores.items():
-                    if verificar_click_círculo(evento.pos, botón):
-                        reproducir_sonido("click")
-                        color_jugador = color
-                        estado_juego = "jugando"
-                        break
+        estado_juego, color_jugador = manejar_estado_color(eventos, pantalla, estado_juego)
     elif estado_juego == "jugando":
-        pantalla.blit(fondo_tablero, (0, 0))
-        pygame.draw.circle(pantalla, color_jugador, POSICIONES_TABLERO[posición_actual], 15)
-        sin_tiempo = False
-        movimiento_procesado = False
-        
-        if pregunta_actual is None:
-            pregunta_actual = generar_pregunta_aleatoria(preguntas)
-            if not pregunta_actual:
-                estado_juego = "sin preguntas"
-                detener_música()
-                continue
-
-            tiempo_restante = 15
-            pygame.time.set_timer(evento_tiempo, 1000)
-            temporizador_activado = True
-        
-        texto_temporizador = fuente.render(str(tiempo_restante), True, BLANCO)
-        círculo_temporizador = texto_temporizador.get_rect(center=NÚMERO_TEMPORIZADOR.center)
-
-        for clave, posición in zip(pregunta_actual.keys(), COORDENADAS_PREGUNTA.values()):
-            blitear_texto_centrado(pantalla, pregunta_actual[clave], fuente, BLANCO, posición)
-        pantalla.blit(texto_temporizador, círculo_temporizador)
-
-        for evento in eventos:
-            if evento.type == pygame.QUIT:
-                correr = False
-            if evento.type == pygame.MOUSEBUTTONDOWN:
-                letras = ["a", "b", "c"]
-                for botón, letra in zip(list(COORDENADAS_PREGUNTA.values())[1:], letras):
-                    if botón.collidepoint(evento.pos):
-                        reproducir_sonido("click")
-                        respuesta = validar_respuesta(letra, pregunta_actual)
-                        estado_juego = "validación"
-                        temporizador_activado = False
-                        pygame.time.set_timer(evento_tiempo, 0)
-                        break
-            if evento.type == evento_tiempo and temporizador_activado:
-                tiempo_restante -= 1
-                if tiempo_restante <= 0:
-                    respuesta = False
-                    sin_tiempo = True
-                    estado_juego = "validación"
-                    temporizador_activado = False
-                    pygame.time.set_timer(evento_tiempo, 0)
-                elif tiempo_restante == 3:
-                    reproducir_sonido("temporizador")
+        estado_juego, respuesta, sin_tiempo = manejar_estado_jugando(eventos, pantalla, estado_juego, fuente, color_jugador, posición_actual, sin_tiempo, variables_estado_jugando)
     elif estado_juego == "validación":
         pantalla.blit(validación, (0, 0))
         pregunta_actual = None
@@ -189,9 +116,7 @@ while correr:
         reproducir_música(estado_juego)
 
         for evento in eventos:
-            if evento.type == pygame.QUIT:
-                correr = False
-            elif evento.type == pygame.MOUSEBUTTONDOWN:
+            if evento.type == pygame.MOUSEBUTTONDOWN:
                 reproducir_sonido("click")
                 resolución = resoluciones[estado_juego]
                 estado_juego = "fin del juego"
@@ -206,8 +131,6 @@ while correr:
         pantalla.blit(fondos[resolución], (0, 0))
 
         for evento in eventos:
-            if evento.type == pygame.QUIT:
-                correr = False
             if evento.type == pygame.MOUSEBUTTONDOWN:
                 if BOTÓN_PUNTUACIÓN.collidepoint(evento.pos):
                     estado_juego = "puntuación"
@@ -237,9 +160,7 @@ while correr:
             blitear_texto_centrado(pantalla, casillas, fuente, BLANCO, rect_casilla)
 
         for evento in eventos:
-            if evento.type == pygame.QUIT:
-                correr = False
-            elif evento.type == pygame.MOUSEBUTTONDOWN:
+            if evento.type == pygame.MOUSEBUTTONDOWN:
                 reproducir_sonido("click")
                 if estado_juego == "ver puntuación":
                     if BOTÓN_VOLVER.collidepoint(evento.pos):
