@@ -231,7 +231,7 @@ def manejar_estados_resoluciones(eventos: list, pantalla: pygame.surface.Surface
             estado_juego = "fin del juego"
     return (estado_juego, resolución)
 
-def manejar_estado_final(eventos: list, pantalla: pygame.surface.Surface, estado_juego: str, resolución: str) -> str:
+def manejar_estado_final(eventos: list, pantalla: pygame.surface.Surface, estado_juego: str, resolución: str, nombre_jugador: str, posición_actual: int, puntuación_guardada: bool) -> tuple[str, bool]:
     """
     Muestra la pantalla final según la resolución y gestiona la transición de estado.
 
@@ -240,9 +240,12 @@ def manejar_estado_final(eventos: list, pantalla: pygame.surface.Surface, estado
         pantalla (pygame.surface.Surface): Superficie donde se dibuja la pantalla final.
         estado_juego (str): Estado actual del juego.
         resolución (str): Resolución alcanzada ("victoria", "derrota" o "atrapado").
+        nombre_jugador (str): Nombre del jugador.
+        posición_actual (int): Posición alcanzada por el jugador.
+        puntuación_guardada (bool): Si la puntuación fue guardada o no.
 
     Devuelve:
-        str: Nuevo estado del juego.
+        tuple[str, bool]: Nuevo estado del juego y si la puntuación fue guardada.
     """
     fondos = {
         "victoria": resolución_victoria,
@@ -254,6 +257,10 @@ def manejar_estado_final(eventos: list, pantalla: pygame.surface.Surface, estado
         reproducir_música("atrapado")
     pantalla.blit(fondos[resolución], (0, 0))
 
+    if not puntuación_guardada:
+        crear_tablero_puntuación(nombre_jugador, posición_actual)
+        puntuación_guardada = True
+
     for evento in eventos:
         if evento.type == pygame.MOUSEBUTTONDOWN:
             if BOTÓN_PUNTUACIÓN.collidepoint(evento.pos):
@@ -261,9 +268,9 @@ def manejar_estado_final(eventos: list, pantalla: pygame.surface.Surface, estado
                 reproducir_sonido("click")
             if BOTÓN_CERRAR.collidepoint(evento.pos):
                 estado_juego = "salir"
-    return estado_juego
+    return (estado_juego, puntuación_guardada)
 
-def manejar_estados_puntuación(eventos: list, pantalla: pygame.surface.Surface, estado_juego: str, resolución: str, nombre_jugador: str, posición_actual: int, fuente: pygame.font.Font, puntuación_guardada: bool) -> tuple[str, bool]:
+def manejar_estados_puntuación(eventos: list, pantalla: pygame.surface.Surface, estado_juego: str, resolución: str, fuente: pygame.font.Font) -> str:
     """
     Muestra la pantalla de puntuaciones y gestiona la transición de estado y el guardado de la puntuación.
 
@@ -272,13 +279,10 @@ def manejar_estados_puntuación(eventos: list, pantalla: pygame.surface.Surface,
         pantalla (pygame.surface.Surface): Superficie donde se dibuja la pantalla de puntuaciones.
         estado_juego (str): Estado actual del juego.
         resolución (str): Resolución alcanzada ("victoria", "derrota" o "atrapado").
-        nombre_jugador (str): Nombre del jugador.
-        posición_actual (int): Posición alcanzada por el jugador.
         fuente (pygame.font.Font): Fuente utilizada para mostrar el texto.
-        puntuación_guardada (bool): Indica si la puntuación ya fue guardada.
 
     Devuelve:
-        tuple[str, bool]: Nuevo estado del juego y si la puntuación fue guardada.
+        str: Nuevo estado del juego
     """
     fondos_puntuación = {
         "victoria": puntuación_victoria,
@@ -288,10 +292,6 @@ def manejar_estados_puntuación(eventos: list, pantalla: pygame.surface.Surface,
 
     if estado_juego == "puntuación":
         pantalla.blit(fondos_puntuación[resolución], (0, 0))
-
-        if not puntuación_guardada:
-            crear_tablero_puntuación(nombre_jugador, posición_actual)
-            puntuación_guardada = True
     else:
         pantalla.blit(ver_puntuación, (0, 0))
 
@@ -309,4 +309,4 @@ def manejar_estados_puntuación(eventos: list, pantalla: pygame.surface.Surface,
                     estado_juego = "inicio"
             else:
                 estado_juego = "salir"
-    return (estado_juego, puntuación_guardada)
+    return estado_juego

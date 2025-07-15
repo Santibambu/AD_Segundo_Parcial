@@ -50,8 +50,8 @@ while correr:
     elif estado_juego == "victoria" or estado_juego == "derrota" or estado_juego == "sin preguntas":
         estado_juego, resolución = manejar_estados_resoluciones(eventos, pantalla, estado_juego)
     elif estado_juego == "fin del juego":
-        estado_juego = manejar_estado_final(eventos, pantalla, estado_juego, resolución)
+        estado_juego, puntuación_guardada = manejar_estado_final(eventos, pantalla, estado_juego, resolución, nombre_jugador, posición_actual, puntuación_guardada)
     elif estado_juego == "puntuación" or estado_juego == "ver puntuación":
-        estado_juego, puntuación_guardada = manejar_estados_puntuación(eventos, pantalla, estado_juego, resolución, nombre_jugador, posición_actual, FUENTE, puntuación_guardada)
+        estado_juego = manejar_estados_puntuación(eventos, pantalla, estado_juego, resolución, FUENTE)
     pygame.display.flip()
 pygame.quit()
